@@ -1,12 +1,13 @@
-package jala.core.models;
+package jala.core.domain;
 
 import jala.core.events.Message;
+import jala.core.models.Subscriber;
 
 import java.net.Socket;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ClientSubscriber implements Subscriber{
+public class ClientSubscriber implements Subscriber {
     private final Socket socket;
     private final Set<String> subscriptions = ConcurrentHashMap.newKeySet();
 

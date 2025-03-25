@@ -1,7 +1,4 @@
-package jala.core;
-
-import jala.core.events.PubSubBroker;
-import jala.core.models.ClientHandler;
+package jala.core.domain;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -15,7 +12,6 @@ public class ChatServer {
     private final int MAX_THREADS = 10;
     private volatile boolean isRunning = true;
     private final ExecutorService threadPool = Executors.newFixedThreadPool(MAX_THREADS);
-
     public void handleClient(Socket clientSocket){
     }
 
@@ -34,7 +30,7 @@ public class ChatServer {
         }catch (IOException ioException){
             System.err.println("Server Error: "+ ioException.getMessage());
         }finally {
-
+            shutdown();
         }
 
     }

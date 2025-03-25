@@ -1,4 +1,4 @@
-package jala.core.models;
+package jala.core.domain;
 
 import java.io.IOException;
 import java.net.Socket;
