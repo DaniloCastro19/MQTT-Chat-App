@@ -12,8 +12,6 @@ public class ChatServer {
     private final int MAX_THREADS = 10;
     private volatile boolean isRunning = true;
     private final ExecutorService threadPool = Executors.newFixedThreadPool(MAX_THREADS);
-    public void handleClient(Socket clientSocket){
-    }
 
     public void startServer(){
         System.out.println("Starting server on port: " + PORT);
