@@ -1,34 +1,29 @@
 package jala.core.domain;
 
+import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.Arrays;
+import java.util.UUID;
 
 public class ClientHandler implements Runnable{
-    private UserMenuHandler userMenuHandler;
-    private final Socket clientSocket;
-    private PrintWriter out;
-    private BufferedReader in;
-    public ClientHandler(Socket clientSocket) throws IOException {
-        this.clientSocket = clientSocket;
-        userMenuHandler = new UserMenuHandler(clientSocket);
+    private final UserMenuHandler userMenuHandler;
+    private final Mqtt5AsyncClient mqttClient;
+    private final String clientID;
+    public ClientHandler(Mqtt5AsyncClient mqttClient, String clientID) {
+        this.mqttClient = mqttClient;
+        this.clientID = UUID.randomUUID().toString();
+        userMenuHandler = new UserMenuHandler(mqttClient);
     }
 
     @Override
     public void run() {
         try{
-            System.out.println("Managing client: " + Arrays.toString(clientSocket.getInetAddress().getAddress()));
+            System.out.println("Managing client: " + clientID);
             userMenuHandler.showMainMenu();
         }catch (Exception exception){
             System.err.println("Client error: " + exception.getMessage());
-        }finally {
-            try{
-                clientSocket.close();
-            }catch (IOException exception){
-                System.err.println("Socket closing error: " + exception.getMessage());
-            }
         }
 
     }

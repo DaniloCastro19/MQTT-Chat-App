@@ -1,35 +1,29 @@
 package jala.core.domain;
 
-import jala.core.events.Message;
-import jala.core.models.Subscriber;
+import com.hivemq.client.mqtt.MqttClient;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3Client;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 
-import java.net.Socket;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
-public class ClientSubscriber implements Subscriber {
-    private final Socket socket;
-    private final Set<String> subscriptions = ConcurrentHashMap.newKeySet();
+public class ClientSubscriber {
+    private static final String BROKER_HOST = "47dd8417ba1643e088d58d823cfd5261.s1.eu.hivemq.cloud";
+    private static final int BROKER_PORT = 8883;
 
-    public ClientSubscriber(Socket socket) {
-        this.socket = socket;
+
+    public Mqtt5AsyncClient createClient(String clientId){
+        return MqttClient.builder()
+                .useMqttVersion5()
+                .identifier(clientId)
+                .serverHost(BROKER_HOST)
+                .serverPort(BROKER_PORT)
+                .sslWithDefaultConfig()
+                .buildAsync();
     }
 
-    @Override
-    public void onMessage(Message message) {
-
-    }
-
-    @Override
-    public String getId() {
-        return "";
-    }
-
-    public void addSubscription(String room){
-        subscriptions.add(room);
-    }
-
-    public void removeSubscription(String rooms){
-        subscriptions.remove(rooms);
+    public Mqtt5AsyncClient createServerClient(){
+        return createClient("server-auth-" + UUID.randomUUID());
     }
 }

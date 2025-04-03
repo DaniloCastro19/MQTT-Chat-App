@@ -1,43 +1,21 @@
 package jala.core.domain;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 public class ChatServer {
+    //TODO: Server logic handling
+        private static final String BROKER_HOST = "47dd8417ba1643e088d58d823cfd5261.s1.eu.hivemq.cloud";
+        private static final int BROKER_PORT = 8883;
 
-    private final int PORT = 8080;
-    private final int MAX_THREADS = 10;
-    private volatile boolean isRunning = true;
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(MAX_THREADS);
+        public void startServer() throws InterruptedException {
+            System.out.println("Starting Auth Server...");
 
-    public void startServer(){
-        System.out.println("Starting server on port: " + PORT);
-
-        try(ServerSocket serverSocket = new ServerSocket(PORT)){
-            Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
-            while (isRunning){
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("New Connection: " + clientSocket.getInetAddress());
-
-                threadPool.execute(new ClientHandler(clientSocket));
+            try {
+                AuthServer authServer = new AuthServer();
+                Thread.currentThread().join();
+            }catch (Exception e){
+                System.err.println("Server Startup Failed: " + e.getMessage());
             }
-
-        }catch (IOException ioException){
-            System.err.println("Server Error: "+ ioException.getMessage());
-        }finally {
-            shutdown();
         }
 
-    }
-
-    public void shutdown(){
-        isRunning=false;
-        threadPool.shutdown();
-        System.out.println("Server stopped");
-    }
 
 
 }
