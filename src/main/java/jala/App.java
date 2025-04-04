@@ -1,20 +1,24 @@
 package jala;
 
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
-import jala.core.domain.ClientHandler;
-import jala.core.domain.ClientSubscriber;
-import jala.core.domain.UserMenuHandler;
-
-import java.io.IOException;
-import java.util.UUID;
+import jala.core.domain.user.MQTTClientHandlerImpl;
+import jala.core.domain.user.UserMenuHandler;
+import jala.core.domain.user.UserRepositoryImpl;
+import jala.core.domain.user.UserServiceImpl;
+import jala.core.domain.user.model.MQTTClientHandler;
+import jala.core.domain.user.model.UserRepository;
 
 public class App {
 
     public static void main(String[] args) {
-        ClientSubscriber clientSubscriber = new ClientSubscriber();
-        String userId = String.valueOf(UUID.randomUUID());
-        Mqtt5AsyncClient client = clientSubscriber.createClient(userId);
-        ClientHandler clientHandler = new ClientHandler(client, userId);
-        clientHandler.run();
+        UserRepository userRepository = new UserRepositoryImpl();
+        MQTTClientHandler mqttClientHandler = new MQTTClientHandlerImpl();
+        UserServiceImpl userService = new UserServiceImpl(userRepository);
+
+        UserMenuHandler menuHandler = new UserMenuHandler(userService,mqttClientHandler );
+
+        while (true){
+            menuHandler.showMainMenu();
+        }
     }
 }
