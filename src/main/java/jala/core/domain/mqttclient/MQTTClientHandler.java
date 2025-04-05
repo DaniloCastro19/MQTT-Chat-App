@@ -1,7 +1,6 @@
-package jala.core.domain.user.model;
+package jala.core.domain.mqttclient;
 
 public interface MQTTClientHandler {
-    void initializeClient();
     void joinRoom();
     void createRoom();
     void logout();

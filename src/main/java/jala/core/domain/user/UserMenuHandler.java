@@ -1,20 +1,18 @@
 package jala.core.domain.user;
 
-import jala.core.domain.user.model.MQTTClientHandler;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
+import jala.core.domain.mqttclient.MQTTClientHandler;
+import jala.core.domain.mqttclient.MQTTClientHandlerImpl;
+
 import jala.core.domain.user.model.UserService;
 
-import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+
 
 public class UserMenuHandler {
     private final Scanner scanner;
-    MQTTClientHandler mqttClientHandler;
-    private final Map<String, Set<String>> rooms = new ConcurrentHashMap<>();
     UserService userService;
-    public UserMenuHandler(UserService userService, MQTTClientHandler mqttClientHandler){
-        this.mqttClientHandler = mqttClientHandler;
+    public UserMenuHandler(UserService userService){
         this.userService = userService;
         this.scanner = new Scanner(System.in);
     }
@@ -35,8 +33,11 @@ public class UserMenuHandler {
                 String[] credentials = getUserCredentials();
                 boolean userlogged = this.userService.userLogin(credentials[0], credentials[1]);
                 if (userlogged){
-                    //TODO: loop logged menu Handling
-                    userLoggedMenu();
+                    MQTTClientHandler mqttClient = new MQTTClientHandlerImpl(credentials[0]);
+                    System.out.println("Client" + credentials[0] + " connected with broker!");
+                    while(userlogged){
+                        userlogged = userLoggedMenu(credentials[0], mqttClient);
+                    }
                 }
                 break;
             case "3":
@@ -61,13 +62,9 @@ public class UserMenuHandler {
         return userCredentials;
     }
 
-
-
-
-
     //TODO: loop logged menu Handling
-    public void userLoggedMenu() {
-        System.out.println("\n--- Welcome, rescue client name!" + "---");
+    public boolean userLoggedMenu(String userInSession, MQTTClientHandler mqttClientHandler) {
+        System.out.println("\n--- Welcome " + userInSession + "!---");
         System.out.println("1) Join a room");
         System.out.println("2) Create a room");
         System.out.println("3) Logout");
@@ -75,37 +72,31 @@ public class UserMenuHandler {
 
         switch (scanner.nextLine()){
             case "1":
-                joinRoomMenu();
+                joinRoomMenu(mqttClientHandler);
                 break;
 
             case "2":
-                createRoomMenu();
+                createRoomMenu(mqttClientHandler);
                 break;
 
             case "3":
-                logout();
-                break;
-
+                return false;
             default:
                 System.out.println("Invalid option");
-
         }
+        return true;
     }
 
-    private void createRoomMenu() {
+    private void createRoomMenu(MQTTClientHandler mqttClientHandler) {
+        //TODO: Client handling with mqttClient
         mqttClientHandler.createRoom();
     }
 
-    private void logout() {
-        mqttClientHandler.logout();
-
-    }
-
-    private void joinRoomMenu() {
+    private void joinRoomMenu(MQTTClientHandler mqttClientHandler) {
+        //TODO: Client handling with mqttClient
         System.out.println("Enter room name to join: ");
         String roomName = scanner.nextLine();
         mqttClientHandler.joinRoom();
     }
-
 
 }
