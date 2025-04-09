@@ -38,7 +38,10 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                 .payload((userInSession + " off.").getBytes())
                 .applyWillPublish()
                 .send();
-
+        mqttClient.toBlocking().publishWith()
+                .topic(Constants.START_SESSION_TOPIC)
+                .payload((userInSession + " Connected to server!").getBytes())
+                .send();
     }
 
     @Override
