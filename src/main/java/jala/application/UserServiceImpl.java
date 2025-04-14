@@ -5,6 +5,8 @@ import jala.domain.UserRepository;
 import jala.domain.UserService;
 
 import java.security.MessageDigest;
+import java.util.Optional;
+import java.util.UUID;
 
 public class UserServiceImpl implements UserService {
     private UserRepository repository;
@@ -14,18 +16,16 @@ public class UserServiceImpl implements UserService {
     }
 
     public boolean registerUser(String username, String password){
-        if(repository.findByUsername(username) != null){
+        if(repository.findByUsername(username).isPresent()){
             System.out.println("User "+ username+ " already exists.");
             return false;
         }
-        String hasshedPassword = hashPassword(password);
-        User user = new User(username, hasshedPassword);
+        UUID userId = UUID.randomUUID();
+        String hashedPassword = hashPassword(password);
+        User user = new User(userId.toString(), username, hashedPassword);
+        repository.addUser(user);
+        return true;
 
-        if(repository.addUser(user)){
-            System.out.println("User "+ username+ " successfully registered.");
-            return true;
-        }
-        return false;
     }
 
     private String hashPassword(String password) {
@@ -48,14 +48,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean userLogin(String username, String password) {
-        User user = repository.findByUsername(username);
-        if(user == null){
+        Optional<User> user = repository.findByUsername(username);
+        if(user.isEmpty()){
             System.out.println("User " + username + " doesn't exists");
             return false;
         }
-
+        User existingUser = user.get();
         String hashedPassword = hashPassword(password);
-        if(user.getHashedPassword().equals(hashedPassword)){
+        if(existingUser.getHashedPassword().equals(hashedPassword)){
             System.out.println("User " + username+ " logged successfully");
             return true;
         }else{

@@ -61,7 +61,6 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
 
     @Override
     public void createRoom(String roomName) {
-        //FIX: client already subscribe issue
         this.roomHandler.createRoom(roomName);
         mqttClient.toBlocking().publishWith()
                 .topic(Constants.ROOM_CREATED)
@@ -76,6 +75,9 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
 
     @Override
     public void logout() {
-
+        if (mqttClient.getState().isConnected()){
+            mqttClient.toBlocking().disconnect();
+            System.out.println("Disconnected from broker");
+        }
     }
 }

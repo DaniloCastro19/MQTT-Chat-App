@@ -1,9 +1,9 @@
 package jala.domain;
 
+import java.util.Optional;
+
 public interface UserRepository {
-
-    boolean addUser(User user);
-    User findByUsername(String username);
-
-
+    void addUser(User user);
+    User findByID(String id);
+    Optional<User> findByUsername(String username);
 }

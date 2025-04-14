@@ -4,6 +4,7 @@ import jala.domain.User;
 import jala.domain.UserRepository;
 
 import java.util.Hashtable;
+import java.util.Optional;
 
 public class UserRepositoryImpl implements UserRepository {
     private Hashtable<String, User> users;
@@ -12,16 +13,19 @@ public class UserRepositoryImpl implements UserRepository {
         users = new Hashtable<>();
     }
 
-    public boolean addUser(User user){
-        if(users.containsKey(user.getUsername())){
-            return false;
-        }
-        users.put(user.getUsername(), user);
-        return true;
+    public void addUser(User user){
+        users.put(user.getId(), user);
     }
 
-    public User findByUsername(String username){
-        return  users.get(username);
+    public User findByID(String id){
+        return  users.get(id);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return users.values().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
     }
 
 }
