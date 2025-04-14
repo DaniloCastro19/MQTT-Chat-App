@@ -1,12 +1,9 @@
-package jala.core.domain.user;
+package jala.application;
 
-import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
-import jala.core.domain.mqttclient.MQTTClientHandler;
-import jala.core.domain.mqttclient.MQTTClientHandlerImpl;
+import jala.domain.MQTTClientHandler;
 
-import jala.core.domain.room.RoomHandler;
-import jala.core.domain.room.RoomHandlerImpl;
-import jala.core.domain.user.model.UserService;
+import jala.domain.RoomHandler;
+import jala.domain.UserService;
 
 import java.util.Scanner;
 

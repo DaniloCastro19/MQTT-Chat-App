@@ -1,11 +1,11 @@
-package jala;
+package jala.presentation;
 
-import jala.core.domain.user.UserMenuHandler;
-import jala.core.domain.user.UserRepositoryImpl;
-import jala.core.domain.user.UserServiceImpl;
-import jala.core.domain.user.model.UserRepository;
+import jala.application.UserMenuHandler;
+import jala.infraestructure.UserRepositoryImpl;
+import jala.application.UserServiceImpl;
+import jala.domain.UserRepository;
 
-public class App {
+public class ChatApp {
 
     public static void main(String[] args) {
         UserRepository userRepository = new UserRepositoryImpl();

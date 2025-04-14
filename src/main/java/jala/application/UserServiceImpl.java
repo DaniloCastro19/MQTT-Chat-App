@@ -1,8 +1,8 @@
-package jala.core.domain.user;
+package jala.application;
 
-import jala.core.domain.user.model.User;
-import jala.core.domain.user.model.UserRepository;
-import jala.core.domain.user.model.UserService;
+import jala.domain.User;
+import jala.domain.UserRepository;
+import jala.domain.UserService;
 
 import java.security.MessageDigest;
 

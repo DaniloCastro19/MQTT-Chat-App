@@ -1,4 +1,4 @@
-package jala.core.utils;
+package jala.helpers;
 
 public class Constants {
     // Default Rooms

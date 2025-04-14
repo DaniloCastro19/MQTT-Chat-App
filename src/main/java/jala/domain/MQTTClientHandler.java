@@ -1,4 +1,4 @@
-package jala.core.domain.mqttclient;
+package jala.domain;
 
 public interface MQTTClientHandler {
     void joinRoom(String roomName);

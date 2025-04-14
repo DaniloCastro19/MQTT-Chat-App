@@ -1,9 +1,11 @@
-package jala.core.domain.room;
+package jala.application;
+
+import jala.domain.RoomHandler;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class RoomHandlerImpl implements RoomHandler{
+public class RoomHandlerImpl implements RoomHandler {
     private Set<String> rooms;
 
     public RoomHandlerImpl() {

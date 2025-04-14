@@ -1,4 +1,4 @@
-package jala.core.domain.user.model;
+package jala.domain;
 
 public interface UserService {
 

@@ -1,7 +1,7 @@
-package jala.core.domain.user;
+package jala.infraestructure;
 
-import jala.core.domain.user.model.User;
-import jala.core.domain.user.model.UserRepository;
+import jala.domain.User;
+import jala.domain.UserRepository;
 
 import java.util.Hashtable;
 

@@ -1,4 +1,4 @@
-package jala.core.domain.room;
+package jala.domain;
 
 import java.util.Set;
 

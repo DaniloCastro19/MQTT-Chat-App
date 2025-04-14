@@ -1,9 +1,9 @@
-package jala.core.domain.mqttclient;
+package jala.application;
 
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
-import jala.core.domain.room.RoomHandler;
-import jala.core.domain.room.RoomHandlerImpl;
-import jala.core.utils.Constants;
+import jala.domain.MQTTClientHandler;
+import jala.helpers.Constants;
+import jala.domain.RoomHandler;
 
 import java.nio.charset.StandardCharsets;
 
