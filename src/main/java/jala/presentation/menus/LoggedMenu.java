@@ -1,7 +1,8 @@
 package jala.presentation.menus;
 
 import jala.application.MQTTClientHandlerImpl;
-import jala.application.RoomHandlerImpl;
+import jala.application.RoomServiceImpl;
+import jala.infraestructure.RoomRepositoryImpl;
 import jala.domain.*;
 
 import java.util.Scanner;
@@ -10,15 +11,15 @@ public class LoggedMenu implements Menu {
     private final User userInSession;
     private final Scanner scanner;
     private MQTTClientHandler mqttClientHandler;
-    private RoomHandler roomHandler;
+    private RoomService roomService;
     private UserService userService;
 
-    public LoggedMenu(User userInSession, UserService userService) {
+    public LoggedMenu(User userInSession, UserService userService, RoomService roomService) {
         this.userInSession = userInSession;
-        this.scanner = new Scanner(System.in);
-        this.roomHandler = new RoomHandlerImpl();
-        this.mqttClientHandler = new MQTTClientHandlerImpl(userInSession.getId(),userInSession.getUsername(),roomHandler);
         this.userService = userService;
+        this.roomService = roomService;
+        this.scanner = new Scanner(System.in);
+        this.mqttClientHandler = new MQTTClientHandlerImpl(userInSession, roomService);
         System.out.println("Client " + userInSession.getUsername() + " connected with broker!");
     }
 
@@ -44,7 +45,7 @@ public class LoggedMenu implements Menu {
             case "3":
                 System.out.println("Logging out " +  userInSession.getUsername()  + "...");
                 mqttClientHandler.logout();
-                return new MainMenu(userService);
+                return new MainMenu(userService, roomService);
             default:
                 System.out.println("Invalid option");
                 return this;

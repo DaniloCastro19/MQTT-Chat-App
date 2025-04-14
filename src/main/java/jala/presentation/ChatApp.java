@@ -1,10 +1,10 @@
 package jala.presentation;
 
-import jala.domain.Menu;
-import jala.domain.UserService;
+import jala.application.RoomServiceImpl;
+import jala.domain.*;
+import jala.infraestructure.RoomRepositoryImpl;
 import jala.infraestructure.UserRepositoryImpl;
 import jala.application.UserServiceImpl;
-import jala.domain.UserRepository;
 import jala.presentation.menus.MainMenu;
 import jala.presentation.menus.MenuManager;
 
@@ -12,9 +12,11 @@ public class ChatApp {
 
     public static void main(String[] args) {
         UserRepository userRepository = new UserRepositoryImpl();
+        RoomRepository roomRepository = new RoomRepositoryImpl();
         UserService userService = new UserServiceImpl(userRepository);
+        RoomService roomService = new RoomServiceImpl(roomRepository);
 
-        Menu mainMenu = new MainMenu(userService);
+        Menu mainMenu = new MainMenu(userService, roomService);
         MenuManager manager = new MenuManager(mainMenu);
         manager.run();
 

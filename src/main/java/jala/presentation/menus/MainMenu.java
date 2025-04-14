@@ -1,6 +1,7 @@
 package jala.presentation.menus;
 
 import jala.domain.Menu;
+import jala.domain.RoomService;
 import jala.domain.User;
 import jala.domain.UserService;
 
@@ -9,9 +10,11 @@ import java.util.Scanner;
 public class MainMenu implements Menu {
     private final Scanner scanner;
     private final UserService userService;
+    private final RoomService roomService;
 
-    public MainMenu(UserService userService) {
+    public MainMenu(UserService userService , RoomService roomService) {
         this.userService = userService;
+        this.roomService = roomService;
         this.scanner = new Scanner(System.in);
     }
 
@@ -55,7 +58,7 @@ public class MainMenu implements Menu {
 
         User user = userService.userLogin(username,password);
         if(user != null){
-            return new LoggedMenu(user, userService);
+            return new LoggedMenu(user, userService, roomService);
         }else {
             return this;
         }
