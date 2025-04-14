@@ -13,27 +13,28 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
 
     final String brokerUsername = "Dan-ADMIN";
     final String brokerPassword = "Danilo123";
-    static final String ID = "chat-app-client";
+    private String clientID;
     String userInSession;
+    private Mqtt5Client mqttClient;
 
-    static final Mqtt5Client mqttClient = Mqtt5Client.builder()
-            .identifier(ID)
-            .serverHost(HOST)
-            .automaticReconnectWithDefaultConfig()
-            .serverPort(Constants.BROKER_PORT)
-            .sslWithDefaultConfig()
-            .build();
-
-    public MQTTClientHandlerImpl(String userInSession, RoomHandler roomHandler) {
+    public MQTTClientHandlerImpl(String clientID, String userInSession, RoomHandler roomHandler) {
+        this.clientID = clientID;
         this.userInSession = userInSession;
-        connectWithBroker();
         this.roomHandler = roomHandler;
+        this.mqttClient = Mqtt5Client.builder()
+                .identifier(clientID)
+                .serverHost(HOST)
+                .automaticReconnectWithDefaultConfig()
+                .serverPort(Constants.BROKER_PORT)
+                .sslWithDefaultConfig()
+                .build();
+        connectWithBroker();
 
     }
 
     private void connectWithBroker() {
         System.out.println("Connecting with broker...");
-        mqttClient.toBlocking().connectWith()
+        this.mqttClient.toBlocking().connectWith()
                 .simpleAuth()
                 .username(brokerUsername)
                 .password(brokerPassword.getBytes(StandardCharsets.UTF_8))
@@ -44,12 +45,12 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                 .payload((this.userInSession + " off.").getBytes())
                 .applyWillPublish()
                 .send();
-        mqttClient.toBlocking().publishWith()
+        this.mqttClient.toBlocking().publishWith()
                 .topic(Constants.START_SESSION_TOPIC)
                 .payload((this.userInSession + " Connected to server!").getBytes())
                 .send();
 
-        mqttClient.toBlocking().unsubscribeWith().topicFilter(Constants.START_SESSION_TOPIC).send();
+        this.mqttClient.toBlocking().unsubscribeWith().topicFilter(Constants.START_SESSION_TOPIC).send();
     }
 
     @Override
@@ -62,7 +63,7 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
     @Override
     public void createRoom(String roomName) {
         this.roomHandler.createRoom(roomName);
-        mqttClient.toBlocking().publishWith()
+        this.mqttClient.toBlocking().publishWith()
                 .topic(Constants.ROOM_CREATED)
                 .payload((this.userInSession + " create" + roomName + "!").getBytes())
                 .send();
@@ -75,8 +76,8 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
 
     @Override
     public void logout() {
-        if (mqttClient.getState().isConnected()){
-            mqttClient.toBlocking().disconnect();
+        if (this.mqttClient.getState().isConnected()){
+            this.mqttClient.toBlocking().disconnect();
             System.out.println("Disconnected from broker");
         }
     }

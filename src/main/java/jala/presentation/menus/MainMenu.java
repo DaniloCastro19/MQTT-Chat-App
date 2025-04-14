@@ -1,6 +1,7 @@
 package jala.presentation.menus;
 
 import jala.domain.Menu;
+import jala.domain.User;
 import jala.domain.UserService;
 
 import java.util.Scanner;
@@ -52,9 +53,9 @@ public class MainMenu implements Menu {
         System.out.println("Enter a password: ");
         String password = scanner.nextLine();
 
-        boolean isLogged = userService.userLogin(username,password);
-        if(isLogged){
-            return new LoggedMenu(username, userService);
+        User user = userService.userLogin(username,password);
+        if(user != null){
+            return new LoggedMenu(user, userService);
         }else {
             return this;
         }

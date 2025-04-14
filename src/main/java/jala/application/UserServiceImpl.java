@@ -47,20 +47,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean userLogin(String username, String password) {
+    public User userLogin(String username, String password) {
         Optional<User> user = repository.findByUsername(username);
         if(user.isEmpty()){
             System.out.println("User " + username + " doesn't exists");
-            return false;
+            return null;
         }
         User existingUser = user.get();
         String hashedPassword = hashPassword(password);
         if(existingUser.getHashedPassword().equals(hashedPassword)){
             System.out.println("User " + username+ " logged successfully");
-            return true;
+            return existingUser;
         }else{
             System.out.println("Incorrect username or password.");
-            return false;
+            return null;
         }
     }
 

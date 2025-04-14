@@ -1,6 +1,5 @@
 package jala.presentation;
 
-import jala.application.UserMenuHandler;
 import jala.domain.Menu;
 import jala.domain.UserService;
 import jala.infraestructure.UserRepositoryImpl;
