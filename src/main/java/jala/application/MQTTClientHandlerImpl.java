@@ -69,7 +69,7 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
 
     @Override
     public void createRoom(String roomName) {
-        this.roomService.createRoom(roomName, userInSession);
+        this.roomService.createRoom(roomName, userInSession.getUsername());
         this.mqttClient.toBlocking().publishWith()
                 .topic(Constants.ROOM_CREATED)
                 .payload((this.userInSession.getUsername() + " create " + roomName + "!").getBytes())

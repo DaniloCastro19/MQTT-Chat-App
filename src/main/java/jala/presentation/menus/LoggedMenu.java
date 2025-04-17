@@ -1,8 +1,6 @@
 package jala.presentation.menus;
 
 import jala.application.MQTTClientHandlerImpl;
-import jala.application.RoomServiceImpl;
-import jala.infraestructure.RoomRepositoryImpl;
 import jala.domain.*;
 
 import java.util.Scanner;

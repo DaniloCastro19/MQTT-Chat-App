@@ -14,7 +14,7 @@ public class ChatApp {
 
     public static void main(String[] args) throws IOException {
         UserRepository userRepository = new UserRepositoryImpl("users-persistence.txt");
-        RoomRepository roomRepository = new RoomRepositoryImpl();
+        RoomRepository roomRepository = new RoomRepositoryImpl("rooms-persistence.txt");
         UserService userService = new UserServiceImpl(userRepository);
         RoomService roomService = new RoomServiceImpl(roomRepository);
 
