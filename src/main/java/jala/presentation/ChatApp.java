@@ -8,10 +8,12 @@ import jala.application.UserServiceImpl;
 import jala.presentation.menus.MainMenu;
 import jala.presentation.menus.MenuManager;
 
+import java.io.IOException;
+
 public class ChatApp {
 
-    public static void main(String[] args) {
-        UserRepository userRepository = new UserRepositoryImpl();
+    public static void main(String[] args) throws IOException {
+        UserRepository userRepository = new UserRepositoryImpl("users-persistence.txt");
         RoomRepository roomRepository = new RoomRepositoryImpl();
         UserService userService = new UserServiceImpl(userRepository);
         RoomService roomService = new RoomServiceImpl(roomRepository);
