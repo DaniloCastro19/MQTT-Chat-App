@@ -2,20 +2,19 @@ package jala.application;
 
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
-import jala.domain.MQTTClientHandler;
-import jala.domain.RoomService;
-import jala.domain.User;
+import jala.domain.*;
 import jala.helpers.Constants;
-import jala.domain.RoomRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLOutput;
+import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
 public class MQTTClientHandlerImpl implements MQTTClientHandler {
     private final String clientID;
     private final RoomService roomService;
+    private final Scanner scanner;
     private User userInSession;
 
     static final String HOST = "47dd8417ba1643e088d58d823cfd5261.s1.eu.hivemq.cloud";
@@ -28,6 +27,7 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
         this.clientID = userInSession.getId();
         this.userInSession = userInSession;
         this.roomService = roomService;
+        this.scanner = new Scanner(System.in);
         this.mqttClient = Mqtt5Client.builder()
                 .identifier(clientID)
                 .serverHost(HOST)
@@ -61,14 +61,20 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
     }
 
     @Override
-    public void joinRoom(String roomName) {
+    public void joinRoom() {
+        System.out.println("Rooms available:");
+        System.out.println("---------------------------------------------");
+        showAvailableRooms();
         System.out.println("Enter room name to join: ");
-
-
+        String roomToJoin = scanner.nextLine();
+        //TODO: Implement get topic room and subscribe user to topic
+        //roomService.getTopicRoom()
     }
 
     @Override
     public void createRoom(String roomName) {
+        String TOPIC_NAME = userInSession.getUsername() + "/room/" + roomName;
+        //TODO: Set room topic & users online
         this.roomService.createRoom(roomName, userInSession.getUsername());
         this.mqttClient.toBlocking().publishWith()
                 .topic(Constants.ROOM_CREATED)
@@ -76,7 +82,7 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                 .send();
         this.mqttClient.toBlocking().unsubscribeWith().topicFilter(Constants.ROOM_CREATED).send();
 
-        String TOPIC_NAME = userInSession.getUsername() + "/room/" + roomName;
+
 
         this.mqttClient.toAsync().subscribeWith()
                 .topicFilter(TOPIC_NAME)
@@ -108,6 +114,14 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
 
     @Override
     public void showAvailableRooms() {
+        List<Room> room = roomService.ListRoomsAvailable();
+        for (Room r: room){
+            System.out.println("Room: " + r.getName());
+            System.out.println("Administrator: " + r.getAdministrator());
+            System.out.println("Users online: " + r.usersOnRoom.size());
+            System.out.println("---------------------------------------------");
+
+        }
 
     }
 

@@ -26,7 +26,9 @@ public class LoggedMenu implements Menu {
         System.out.println("\n--- Welcome " +  userInSession.getUsername()  + "!---");
         System.out.println("1) Create a room");
         System.out.println("2) Join a room");
-        System.out.println("3) Logout");
+        System.out.println("3) List my rooms");
+        System.out.println("4) Delete a room");
+        System.out.println("5) Logout");
         System.out.println("Enter your choice: ");
         String choice = scanner.nextLine();
         switch (choice){
@@ -36,9 +38,7 @@ public class LoggedMenu implements Menu {
                 mqttClientHandler.createRoom(roomName);
                 return this;
             case "2":
-                System.out.println("Enter room name to join: ");
-                roomName = scanner.nextLine();
-                mqttClientHandler.joinRoom(roomName);
+                mqttClientHandler.joinRoom();
                 return this;
             case "3":
                 System.out.println("Logging out " +  userInSession.getUsername()  + "...");

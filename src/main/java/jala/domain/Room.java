@@ -6,7 +6,10 @@ import java.util.List;
 public class Room {
     private String id;
     private String name;
+    //TODO: Implement topicName attribute
+    //private String topicName;
     private String adminUsername;
+    //TODO: USER ROOMS attribute
     public List<String> usersOnRoom;
 
     public Room(String id,String name, String adminUsername, List<String> usersOnRoom) {
