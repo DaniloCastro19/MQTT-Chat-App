@@ -24,4 +24,16 @@ public class User {
     public String getId() {
         return id;
     }
+
+    public String toLine(){
+        return id + "," + username + "," + hashedPassword;
+    }
+
+    public static User fromLine(String line){
+        String[] parts = line.split(",", 3);
+        if(parts.length != 3){
+            throw new IllegalArgumentException("Invalid line: " + line);
+        }
+        return new User(parts[0], parts[1], parts[2]);
+    }
 }
