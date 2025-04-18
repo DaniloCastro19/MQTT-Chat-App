@@ -40,7 +40,17 @@ public class LoggedMenu implements Menu {
             case "2":
                 mqttClientHandler.joinRoom();
                 return this;
+
             case "3":
+                mqttClientHandler.listUserRooms();
+                return this;
+            case "4":
+                mqttClientHandler.listUserRooms();
+                System.out.println("Enter room name to delete: ");
+                roomName = scanner.nextLine();
+                mqttClientHandler.deleteRoom(roomName);
+                return this;
+            case "5":
                 System.out.println("Logging out " +  userInSession.getUsername()  + "...");
                 mqttClientHandler.logout();
                 return new MainMenu(userService, roomService);

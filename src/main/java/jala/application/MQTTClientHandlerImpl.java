@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLOutput;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class MQTTClientHandlerImpl implements MQTTClientHandler {
@@ -67,40 +68,61 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
         showAvailableRooms();
         System.out.println("Enter room name to join: ");
         String roomToJoin = scanner.nextLine();
-        //TODO: Implement get topic room and subscribe user to topic
-        //roomService.getTopicRoom()
+        Optional<Room> room = roomService.getRoomByName(roomToJoin);
+        if(room.isPresent()){
+            Room existingRoom = room.get();
+            //Uncatched exception, analyze line 75
+            existingRoom.usersOnRoom.add(userInSession.getUsername());
+            this.mqttClient.toBlocking().publishWith()
+                    .topic(existingRoom.getTopicName())
+                    .payload((this.userInSession.getUsername() + " Joined to chat!").getBytes())
+                    .send();
+            String message = "";
+            while (!Objects.equals(message, "Bye")){
+                System.out.println("Write your message: ");
+                message = scanner.nextLine();
+                chatInRoom(existingRoom.getTopicName(), message);
+            }
+            this.mqttClient.toBlocking().unsubscribeWith().topicFilter(existingRoom.getTopicName()).send();
+
+        }
+
     }
 
     @Override
     public void createRoom(String roomName) {
         String TOPIC_NAME = userInSession.getUsername() + "/room/" + roomName;
         //TODO: Set room topic & users online
-        this.roomService.createRoom(roomName, userInSession.getUsername());
-        this.mqttClient.toBlocking().publishWith()
-                .topic(Constants.ROOM_CREATED)
-                .payload((this.userInSession.getUsername() + " create " + roomName + "!").getBytes())
-                .send();
-        this.mqttClient.toBlocking().unsubscribeWith().topicFilter(Constants.ROOM_CREATED).send();
+        Room userRoom = this.roomService.createRoom(roomName, userInSession.getUsername(), TOPIC_NAME);
 
+        if (userRoom != null){
 
+            this.mqttClient.toBlocking().publishWith()
+                    .topic(Constants.ROOM_CREATED)
+                    .payload((this.userInSession.getUsername() + " create " + roomName + "!").getBytes())
+                    .send();
+            this.mqttClient.toBlocking().unsubscribeWith().topicFilter(Constants.ROOM_CREATED).send();
 
-        this.mqttClient.toAsync().subscribeWith()
-                .topicFilter(TOPIC_NAME)
-                .callback(publish -> {
-                   String message = new String(publish.getPayloadAsBytes(), StandardCharsets.UTF_8);
-                    System.out.println(message);
-                })
-                .send();
-        System.out.println("Chat Topic created: " + TOPIC_NAME);
+            this.mqttClient.toAsync().subscribeWith()
+                    .topicFilter(TOPIC_NAME)
+                    .callback(publish -> {
+                        String message = new String(publish.getPayloadAsBytes(), StandardCharsets.UTF_8);
+                        System.out.println(message);
+                    })
+                    .send();
 
-        Scanner scanner = new Scanner(System.in);
-        String message = "";
+            userInSession.getUserRooms().add(userRoom);
+            System.out.println("Chat Topic created: " + TOPIC_NAME);
 
-        while (!Objects.equals(message, "Bye")){
-            System.out.println("Write your message: ");
-            message = scanner.nextLine();
-            chatInRoom(TOPIC_NAME, message);
+            String message = "";
+
+            while (!Objects.equals(message, "Bye")){
+                System.out.println("Write your message: ");
+                message = scanner.nextLine();
+                chatInRoom(TOPIC_NAME, message);
+            }
         }
+
     }
 
     @Override
@@ -110,6 +132,19 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                 .qos(MqttQos.AT_LEAST_ONCE)
                 .payload(("[" + userInSession.getUsername() + "]: " + message).getBytes(StandardCharsets.UTF_8))
                 .send();
+    }
+
+    @Override
+    public void listUserRooms() {
+        List<Room> rooms = userInSession.getUserRooms();
+
+        System.out.println("---------------------------------------------");
+        for (Room room: rooms){
+            System.out.println("Room: " + room.getName());
+            System.out.println("Users online: " + room.usersOnRoom.size());
+            System.out.println("---------------------------------------------");
+        }
+
     }
 
     @Override
@@ -123,6 +158,12 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
 
         }
 
+    }
+
+
+    @Override
+    public void deleteRoom(String roomName) {
+        roomService.deleteRoom(roomName);
     }
 
     @Override

@@ -19,10 +19,14 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public Room createRoom(String name, String adminUsername){
+    public Room createRoom(String name, String adminUsername, String topicName){
         try{
+            if(roomRepository.findByName(name).isPresent()){
+                System.out.println(name + " room name is already in use! Please, try another.");
+                return null;
+            }
             String roomId = UUID.randomUUID().toString();
-            Room room = new Room(roomId, name, adminUsername, Collections.singletonList(adminUsername));
+            Room room = new Room(roomId, name,topicName, adminUsername, Collections.singletonList(adminUsername));
             return roomRepository.createRoom(room);
         } catch (IOException e){
             System.err.println("Error creating room: "+ e.getMessage());
@@ -63,9 +67,9 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public boolean deleteRoom(String id) {
+    public boolean deleteRoom(String roomName) {
         try {
-            return roomRepository.deleteRoomById(id);
+            return roomRepository.deleteRoomByRoomName(roomName);
         } catch (IOException e){
             System.err.println("Error creating room: "+ e.getMessage());
             return false;

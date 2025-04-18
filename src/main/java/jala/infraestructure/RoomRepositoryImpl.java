@@ -54,9 +54,9 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
-    public boolean deleteRoomById(String id) throws IOException {
+    public boolean deleteRoomByRoomName(String name) throws IOException {
         List<Room> rooms = findAll();
-        boolean removed = rooms.removeIf(room -> room.getId().equals(id));
+        boolean removed = rooms.removeIf(room -> room.getName().equals(name));
 
         if(removed){
             List<String> lines = rooms.stream()
