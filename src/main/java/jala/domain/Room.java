@@ -1,5 +1,7 @@
 package jala.domain;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +38,7 @@ public class Room {
 
 
     public String toLine(){
-        return id + "," + name + "," + topicName + "," + adminUsername+ "," + usersOnRoom;
+        return id + "," + name + "," + topicName + "," + adminUsername+ "," + String.join("",usersOnRoom);
     }
 
     public static Room fromLine(String line){
@@ -44,6 +46,7 @@ public class Room {
         if(parts.length != 5){
             throw new IllegalArgumentException("Invalid line: " + line);
         }
-        return new Room(parts[0], parts[1], parts[2],parts[3] ,Collections.singletonList(parts[4]));
+        List<String> users = new ArrayList<>(Arrays.asList(parts[4].split(";")));
+        return new Room(parts[0], parts[1], parts[2],parts[3] ,users);
     }
 }

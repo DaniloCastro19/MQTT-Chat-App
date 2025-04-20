@@ -8,4 +8,5 @@ public interface MQTTClientHandler {
     void showAvailableRooms();
     void deleteRoom(String roomName);
     void logout();
+    void unsubscribeTopic(String topicName);
 }

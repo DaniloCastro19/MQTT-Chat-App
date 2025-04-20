@@ -58,7 +58,7 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                 .payload((this.userInSession.getUsername() + " Connected to server!").getBytes())
                 .send();
 
-        this.mqttClient.toBlocking().unsubscribeWith().topicFilter(Constants.START_SESSION_TOPIC).send();
+        unsubscribeTopic(Constants.START_SESSION_TOPIC);
     }
 
     @Override
@@ -71,7 +71,6 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
         Optional<Room> room = roomService.getRoomByName(roomToJoin);
         if(room.isPresent()){
             Room existingRoom = room.get();
-            //Uncatched exception, analyze line 75
             existingRoom.usersOnRoom.add(userInSession.getUsername());
             this.mqttClient.toBlocking().publishWith()
                     .topic(existingRoom.getTopicName())
@@ -83,8 +82,9 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                 message = scanner.nextLine();
                 chatInRoom(existingRoom.getTopicName(), message);
             }
-            this.mqttClient.toBlocking().unsubscribeWith().topicFilter(existingRoom.getTopicName()).send();
-
+            unsubscribeTopic(existingRoom.getTopicName());
+        }else {
+            System.out.println("Room doesn't exist.");
         }
 
     }
@@ -101,7 +101,7 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                     .topic(Constants.ROOM_CREATED)
                     .payload((this.userInSession.getUsername() + " create " + roomName + "!").getBytes())
                     .send();
-            this.mqttClient.toBlocking().unsubscribeWith().topicFilter(Constants.ROOM_CREATED).send();
+            unsubscribeTopic(Constants.ROOM_CREATED);
 
             this.mqttClient.toAsync().subscribeWith()
                     .topicFilter(TOPIC_NAME)
@@ -163,7 +163,18 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
 
     @Override
     public void deleteRoom(String roomName) {
-        roomService.deleteRoom(roomName);
+        Optional<Room> room = roomService.getRoomByName(roomName);
+        if (room.isPresent()){
+            Room existingRoom = room.get();
+            if(existingRoom.getAdministrator().equals(userInSession.getUsername())){
+                roomService.deleteRoom(roomName);
+                System.out.println("Room Deleted successfully");
+            }else {
+                System.out.println("Your not the administrator of this room.");
+            }
+        }else {
+            System.out.println("Room doesn't exist");
+        }
     }
 
     @Override
@@ -172,5 +183,10 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
             this.mqttClient.toBlocking().disconnect();
             System.out.println("Disconnected from broker");
         }
+    }
+
+    @Override
+    public void unsubscribeTopic(String topicName) {
+        this.mqttClient.toBlocking().unsubscribeWith().topicFilter(topicName).send();
     }
 }
