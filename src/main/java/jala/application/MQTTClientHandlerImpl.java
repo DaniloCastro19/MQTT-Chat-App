@@ -23,7 +23,7 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
     final String brokerUsername = "Dan-ADMIN";
     final String brokerPassword = "Danilo123";
     private Mqtt5Client mqttClient;
-
+    private ChatManager chatManager;
     public MQTTClientHandlerImpl(User userInSession, RoomService roomService) {
         this.clientID = userInSession.getId();
         this.userInSession = userInSession;
@@ -37,6 +37,8 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                 .sslWithDefaultConfig()
                 .build();
         connectWithBroker();
+
+        this.chatManager = new ChatManagerImpl(this.mqttClient, this.scanner, this.userInSession.getUsername());
 
     }
 
@@ -76,13 +78,7 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                     .topic(existingRoom.getTopicName())
                     .payload((this.userInSession.getUsername() + " Joined to chat!").getBytes())
                     .send();
-            String message = "";
-            while (!Objects.equals(message, "Bye")){
-                System.out.println("Write your message: ");
-                message = scanner.nextLine();
-                chatInRoom(existingRoom.getTopicName(), message);
-            }
-            unsubscribeTopic(existingRoom.getTopicName());
+            chatManager.startChat(existingRoom.getTopicName());
         }else {
             System.out.println("Room doesn't exist.");
         }
@@ -92,46 +88,20 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
     @Override
     public void createRoom(String roomName) {
         String TOPIC_NAME = userInSession.getUsername() + "/room/" + roomName;
-        //TODO: Set room topic & users online
         Room userRoom = this.roomService.createRoom(roomName, userInSession.getUsername(), TOPIC_NAME);
 
         if (userRoom != null){
-
             this.mqttClient.toBlocking().publishWith()
                     .topic(Constants.ROOM_CREATED)
                     .payload((this.userInSession.getUsername() + " create " + roomName + "!").getBytes())
                     .send();
             unsubscribeTopic(Constants.ROOM_CREATED);
 
-            this.mqttClient.toAsync().subscribeWith()
-                    .topicFilter(TOPIC_NAME)
-                    .callback(publish -> {
-                        String message = new String(publish.getPayloadAsBytes(), StandardCharsets.UTF_8);
-                        System.out.println(message);
-                    })
-                    .send();
-
             userInSession.getUserRooms().add(userRoom);
-            System.out.println("Chat Topic created: " + TOPIC_NAME);
+            chatManager.startChat(userRoom.getTopicName());
 
-            String message = "";
-
-            while (!Objects.equals(message, "Bye")){
-                System.out.println("Write your message: ");
-                message = scanner.nextLine();
-                chatInRoom(TOPIC_NAME, message);
-            }
         }
 
-    }
-
-    @Override
-    public void chatInRoom(String topicName, String message) {
-        this.mqttClient.toBlocking().publishWith()
-                .topic(topicName)
-                .qos(MqttQos.AT_LEAST_ONCE)
-                .payload(("[" + userInSession.getUsername() + "]: " + message).getBytes(StandardCharsets.UTF_8))
-                .send();
     }
 
     @Override
