@@ -1,8 +1,8 @@
 package jala.domain;
 
 public interface MQTTClientHandler {
-    void joinRoom();
-    void createRoom(String roomName);
+    void joinRoom() throws Exception;
+    void createRoom(String roomName) throws Exception;
     void listUserRooms();
     void showAvailableRooms();
     void deleteRoom(String roomName);

@@ -3,13 +3,10 @@ package jala.application;
 import jala.domain.Room;
 import jala.domain.RoomRepository;
 import jala.domain.RoomService;
-import jala.domain.User;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class RoomServiceImpl implements RoomService {
     private final RoomRepository roomRepository;
@@ -26,10 +23,16 @@ public class RoomServiceImpl implements RoomService {
                 return null;
             }
             String roomId = UUID.randomUUID().toString();
-            Room room = new Room(roomId, name,topicName, adminUsername, Collections.singletonList(adminUsername));
+            List<String> usersOnRoom = new ArrayList<>();
+            SecretKey secretKey = RoomSecurityManager.generateRoomKey();
+            byte[] keyBytes =secretKey.getEncoded();
+            Room room = new Room(roomId, name,topicName, adminUsername, usersOnRoom, keyBytes);
             return roomRepository.createRoom(room);
         } catch (IOException e){
             System.err.println("Error creating room: "+ e.getMessage());
+            return null;
+        }catch (Exception e){
+            System.err.println("Error generating room key: "+ e.getMessage());
             return null;
         }
 

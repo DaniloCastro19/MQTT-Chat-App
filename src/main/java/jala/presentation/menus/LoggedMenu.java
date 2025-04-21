@@ -22,7 +22,7 @@ public class LoggedMenu implements Menu {
     }
 
     @Override
-    public Menu run() {
+    public Menu run() throws Exception {
         System.out.println("\n--- Welcome " +  userInSession.getUsername()  + "!---");
         System.out.println("1) Create a room");
         System.out.println("2) Join a room");

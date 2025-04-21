@@ -5,6 +5,8 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import jala.domain.*;
 import jala.helpers.Constants;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLOutput;
 import java.util.List;
@@ -23,7 +25,6 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
     final String brokerUsername = "Dan-ADMIN";
     final String brokerPassword = "Danilo123";
     private Mqtt5Client mqttClient;
-    private ChatManager chatManager;
     public MQTTClientHandlerImpl(User userInSession, RoomService roomService) {
         this.clientID = userInSession.getId();
         this.userInSession = userInSession;
@@ -38,7 +39,6 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                 .build();
         connectWithBroker();
 
-        this.chatManager = new ChatManagerImpl(this.mqttClient, this.scanner, this.userInSession.getUsername());
 
     }
 
@@ -64,7 +64,7 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
     }
 
     @Override
-    public void joinRoom() {
+    public void joinRoom() throws Exception {
         System.out.println("Rooms available:");
         System.out.println("---------------------------------------------");
         showAvailableRooms();
@@ -78,6 +78,9 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                     .topic(existingRoom.getTopicName())
                     .payload((this.userInSession.getUsername() + " Joined to chat!").getBytes())
                     .send();
+            byte[] keyBytes = room.get().getEncryptionKey();
+            SecretKey roomKey = new SecretKeySpec(keyBytes, 0, keyBytes.length, "AES");
+            ChatManager chatManager = new ChatManagerImpl( mqttClient,scanner,userInSession.getUsername(),roomKey);
             chatManager.startChat(existingRoom.getTopicName());
         }else {
             System.out.println("Room doesn't exist.");
@@ -86,7 +89,7 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
     }
 
     @Override
-    public void createRoom(String roomName) {
+    public void createRoom(String roomName) throws Exception {
         String TOPIC_NAME = userInSession.getUsername() + "/room/" + roomName;
         Room userRoom = this.roomService.createRoom(roomName, userInSession.getUsername(), TOPIC_NAME);
 
@@ -97,6 +100,9 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
                     .send();
             unsubscribeTopic(Constants.ROOM_CREATED);
 
+            byte[] keyBytes = userRoom.getEncryptionKey();
+            SecretKey roomKey = new SecretKeySpec(keyBytes, 0, keyBytes.length, "AES");
+            ChatManager chatManager = new ChatManagerImpl( mqttClient,scanner,userInSession.getUsername(),roomKey);
             userInSession.getUserRooms().add(userRoom);
             chatManager.startChat(userRoom.getTopicName());
 
