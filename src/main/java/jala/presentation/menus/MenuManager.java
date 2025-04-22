@@ -9,7 +9,7 @@ public class MenuManager {
         this.currenMenu = currenMenu;
     }
 
-    public void run(){
+    public void run() throws Exception {
         while (currenMenu != null){
             currenMenu = currenMenu.run();
         }

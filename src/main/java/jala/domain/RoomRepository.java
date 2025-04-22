@@ -10,5 +10,5 @@ public interface RoomRepository {
     Optional<Room> findById(String id) throws IOException;
     Optional<Room> findByName(String name) throws IOException;
     List<Room> findAll() throws IOException;
-    boolean deleteRoomById(String id) throws IOException;
+    boolean deleteRoomByRoomName(String id) throws IOException;
 }

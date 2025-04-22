@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class ChatApp {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         UserRepository userRepository = new UserRepositoryImpl("users-persistence.txt");
         RoomRepository roomRepository = new RoomRepositoryImpl("rooms-persistence.txt");
         UserService userService = new UserServiceImpl(userRepository);

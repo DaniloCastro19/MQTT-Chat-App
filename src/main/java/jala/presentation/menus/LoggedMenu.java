@@ -22,11 +22,13 @@ public class LoggedMenu implements Menu {
     }
 
     @Override
-    public Menu run() {
+    public Menu run() throws Exception {
         System.out.println("\n--- Welcome " +  userInSession.getUsername()  + "!---");
         System.out.println("1) Create a room");
         System.out.println("2) Join a room");
-        System.out.println("3) Logout");
+        System.out.println("3) List my rooms");
+        System.out.println("4) Delete a room");
+        System.out.println("5) Logout");
         System.out.println("Enter your choice: ");
         String choice = scanner.nextLine();
         switch (choice){
@@ -36,11 +38,19 @@ public class LoggedMenu implements Menu {
                 mqttClientHandler.createRoom(roomName);
                 return this;
             case "2":
-                System.out.println("Enter room name to join: ");
-                roomName = scanner.nextLine();
-                mqttClientHandler.joinRoom(roomName);
+                mqttClientHandler.joinRoom();
                 return this;
+
             case "3":
+                mqttClientHandler.listUserRooms();
+                return this;
+            case "4":
+                mqttClientHandler.listUserRooms();
+                System.out.println("Enter room name to delete: ");
+                roomName = scanner.nextLine();
+                mqttClientHandler.deleteRoom(roomName);
+                return this;
+            case "5":
                 System.out.println("Logging out " +  userInSession.getUsername()  + "...");
                 mqttClientHandler.logout();
                 return new MainMenu(userService, roomService);
