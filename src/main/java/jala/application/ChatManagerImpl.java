@@ -37,17 +37,18 @@ public class ChatManagerImpl implements ChatManager {
                     }
                 }).send();
         String message;
+        System.out.println("Write your message (type 'Bye' to exit):");
         do {
-            System.out.println("Write your message (type 'Bye' to exit):");
             message = scanner.nextLine();
             if(!"Bye".equals(message)){
-                String messageEncrypted = RoomSecurityManager.encrypt(("[" + username + "]: " + message), roomKey);
+                String messageEncrypted = RoomSecurityManager.encrypt(("[" + username + "]: " + message + "\n"), roomKey);
                 mqtt5Client.toBlocking().publishWith()
                         .topic(topicName)
                         .qos(MqttQos.AT_LEAST_ONCE)
                         .payload((messageEncrypted).getBytes(StandardCharsets.UTF_8))
                         .send();
             }
+
         } while (!"Bye".equals(message));
 
     }

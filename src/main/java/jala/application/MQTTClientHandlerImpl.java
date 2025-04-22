@@ -72,14 +72,17 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
         String roomToJoin = scanner.nextLine();
         Optional<Room> room = roomService.getRoomByName(roomToJoin);
         if(room.isPresent()){
-            Room existingRoom = room.get();
-            existingRoom.usersOnRoom.add(userInSession.getUsername());
-            this.mqttClient.toBlocking().publishWith()
-                    .topic(existingRoom.getTopicName())
-                    .payload((this.userInSession.getUsername() + " Joined to chat!").getBytes())
-                    .send();
             byte[] keyBytes = room.get().getEncryptionKey();
             SecretKey roomKey = new SecretKeySpec(keyBytes, 0, keyBytes.length, "AES");
+            Room existingRoom = room.get();
+            existingRoom.usersOnRoom.add(userInSession.getUsername());
+            String welcome = userInSession.getUsername() + " Joined to chat!" + "\n";
+            String encodeWelcome = RoomSecurityManager.encrypt(welcome, roomKey);
+            this.mqttClient.toBlocking().publishWith()
+                    .topic(existingRoom.getTopicName())
+                    .payload(encodeWelcome.getBytes(StandardCharsets.UTF_8))
+                    .send();
+
             ChatManager chatManager = new ChatManagerImpl( mqttClient,scanner,userInSession.getUsername(),roomKey);
             chatManager.startChat(existingRoom.getTopicName());
         }else {
@@ -104,6 +107,7 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
             SecretKey roomKey = new SecretKeySpec(keyBytes, 0, keyBytes.length, "AES");
             ChatManager chatManager = new ChatManagerImpl( mqttClient,scanner,userInSession.getUsername(),roomKey);
             userInSession.getUserRooms().add(userRoom);
+            userRoom.usersOnRoom.add(userInSession.getUsername());
             chatManager.startChat(userRoom.getTopicName());
 
         }
