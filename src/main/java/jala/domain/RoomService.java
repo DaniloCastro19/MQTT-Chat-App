@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RoomService {
-    Room createRoom(String name, String adminUsername);
+    Room createRoom(String name, String adminUsername, String topicName);
     Optional<Room> getRoomById(String id);
     Optional<Room> getRoomByName(String name);
     List<Room> ListRoomsAvailable();
