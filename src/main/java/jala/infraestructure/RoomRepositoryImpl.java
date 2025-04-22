@@ -46,6 +46,19 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
+    public Room updateRoom(Room updatedRoom) throws IOException {
+        List<Room> rooms = findAll();
+
+        List<String> newLines = rooms.stream()
+                .map(room -> room.getId().equals(updatedRoom.getId())
+                ? updatedRoom.toLine(): room.toLine())
+                .toList();
+
+        Files.write(filePath,newLines,StandardCharsets.UTF_8,StandardOpenOption.TRUNCATE_EXISTING);
+        return updatedRoom;
+    }
+
+    @Override
     public List<Room> findAll() throws IOException {
         return Files.readAllLines(filePath, StandardCharsets.UTF_8).stream()
                 .filter(line -> !line.isBlank())

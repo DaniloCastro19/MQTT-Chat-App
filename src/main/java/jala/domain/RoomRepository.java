@@ -9,6 +9,7 @@ public interface RoomRepository {
     Room createRoom(Room room) throws IOException;
     Optional<Room> findById(String id) throws IOException;
     Optional<Room> findByName(String name) throws IOException;
+    Room updateRoom(Room updateRoom) throws IOException;
     List<Room> findAll() throws IOException;
     boolean deleteRoomByRoomName(String id) throws IOException;
 }

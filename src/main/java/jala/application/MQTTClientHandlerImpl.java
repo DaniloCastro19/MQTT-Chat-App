@@ -7,6 +7,7 @@ import jala.helpers.Constants;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLOutput;
 import java.util.List;
@@ -106,25 +107,26 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
             byte[] keyBytes = userRoom.getEncryptionKey();
             SecretKey roomKey = new SecretKeySpec(keyBytes, 0, keyBytes.length, "AES");
             ChatManager chatManager = new ChatManagerImpl( mqttClient,scanner,userInSession.getUsername(),roomKey);
-            userInSession.getUserRooms().add(userRoom);
             userRoom.usersOnRoom.add(userInSession.getUsername());
+            roomService.addUserToRoom(userRoom.getName(), userInSession.getUsername());
             chatManager.startChat(userRoom.getTopicName());
-
         }
 
     }
 
     @Override
     public void listUserRooms() {
-        List<Room> rooms = userInSession.getUserRooms();
-
-        System.out.println("---------------------------------------------");
-        for (Room room: rooms){
-            System.out.println("Room: " + room.getName());
-            System.out.println("Users online: " + room.usersOnRoom.size());
+        try {
+            List<Room> rooms = roomService.getRoomsForUser(userInSession.getUsername());
             System.out.println("---------------------------------------------");
+            for (Room room: rooms){
+                System.out.println("Room: " + room.getName());
+                System.out.println("Users online: " + room.usersOnRoom.size());
+                System.out.println("---------------------------------------------");
+            }
+        } catch (IOException e) {
+            System.err.println("Error listing rooms: " + e.getMessage());
         }
-
     }
 
     @Override
@@ -142,11 +144,12 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
 
 
     @Override
-    public void deleteRoom(String roomName) {
+    public void deleteRoom(String roomName) throws IOException {
         Optional<Room> room = roomService.getRoomByName(roomName);
         if (room.isPresent()){
             Room existingRoom = room.get();
             if(existingRoom.getAdministrator().equals(userInSession.getUsername())){
+                roomService.removeUserFromRoom(existingRoom.getName(), userInSession.getUsername());
                 roomService.deleteRoom(roomName);
                 System.out.println("Room Deleted successfully");
             }else {

@@ -6,7 +6,10 @@ import jala.domain.RoomService;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class RoomServiceImpl implements RoomService {
     private final RoomRepository roomRepository;
@@ -77,5 +80,33 @@ public class RoomServiceImpl implements RoomService {
             System.err.println("Error creating room: "+ e.getMessage());
             return false;
         }
+    }
+
+    @Override
+    public Room addUserToRoom(String roomName, String username) throws IOException {
+        Room room = roomRepository.findByName(roomName)
+                .orElseThrow(() -> new IllegalArgumentException("Room " + roomName + " doesn't exist."));
+        if(!room.usersOnRoom.contains(username)){
+            room.usersOnRoom.add(username);
+            roomRepository.updateRoom(room);
+        }
+        return room;
+    }
+
+    @Override
+    public Room removeUserFromRoom(String roomName, String username) throws IOException {
+        Room room = roomRepository.findByName(roomName)
+                .orElseThrow(() -> new IllegalArgumentException("Room " + roomName + " doesn't exist."));
+        if(room.usersOnRoom.remove(username)){
+            roomRepository.updateRoom(room);
+        }
+        return room;
+    }
+
+    @Override
+    public List<Room> getRoomsForUser(String username) throws IOException {
+        return roomRepository.findAll().stream()
+                .filter(room -> room.usersOnRoom.contains(username))
+                .toList();
     }
 }
