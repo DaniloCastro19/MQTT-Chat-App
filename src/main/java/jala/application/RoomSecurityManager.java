@@ -6,12 +6,15 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.regex.Pattern;
 
 public class RoomSecurityManager {
     private static final int GCM_TAG_LENGTH = 128;
     private static final int GCM_IV_LENGTH = 12;
+    private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile("[^A-Za-z0-9]");
 
 
     public static SecretKey generateRoomKey() throws Exception {
@@ -47,4 +50,34 @@ public class RoomSecurityManager {
         byte[] plain = cipher.doFinal(cypherText);
         return new String(plain, StandardCharsets.UTF_8);
     }
+
+    public static boolean isStrongPassword(String password){
+        if (password==null || password.length() < 8){
+            return false;
+        }
+        boolean hasLower = Pattern.compile("[a-z]").matcher(password).find();
+        boolean hasUpper = Pattern.compile("[A-Z]").matcher(password).find();
+        boolean hasDigit = Pattern.compile("[0-9]").matcher(password).find();
+        boolean hasSpecial = SPECIAL_CHAR_PATTERN.matcher(password).find();
+        return hasLower && hasUpper && hasDigit && hasSpecial;
+    }
+    public static String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(password.getBytes("UTF-8"));
+            StringBuilder hexString = new StringBuilder();
+            for (byte byt : hashBytes){
+                String hex = Integer.toHexString(0xff & byt);
+                if(hex.length() == 1){
+                    hexString.append("0");
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        }  catch (Exception e) {
+            throw new RuntimeException("Password hashing error: " + e);
+        }
+    }
+
+
 }

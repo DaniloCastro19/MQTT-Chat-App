@@ -1,5 +1,6 @@
 package jala.presentation.menus;
 
+import jala.application.RoomSecurityManager;
 import jala.domain.Menu;
 import jala.domain.RoomService;
 import jala.domain.User;
@@ -47,7 +48,17 @@ public class MainMenu implements Menu {
         String username = scanner.nextLine();
         System.out.println("Enter a password: ");
         String password = scanner.nextLine();
-        userService.registerUser(username, password);
+
+        if(RoomSecurityManager.isStrongPassword(password)){
+            userService.registerUser(username, password);
+        }else {
+            System.out.println("Contraseña no válida. La contraseña debe ser una combinación de al menos: " + "\n"
+            + "9 caractéres" + "\n"
+            + "Debe usar un caracter especial (@-_!¡)" + "\n"
+            + "Debe usar caracter en minúsculas y en mayúscula" + "\n"
+            + "Debe usar un valor numérico" + "\n"
+            );
+        }
     }
 
     private Menu loginFlow(){
