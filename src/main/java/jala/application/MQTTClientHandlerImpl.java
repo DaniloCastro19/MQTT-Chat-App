@@ -4,14 +4,13 @@ import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import jala.domain.*;
 import jala.helpers.Constants;
+import jala.helpers.PropertiesConfig;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLOutput;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -21,10 +20,10 @@ public class MQTTClientHandlerImpl implements MQTTClientHandler {
     private final Scanner scanner;
     private User userInSession;
 
-    static final String HOST = "47dd8417ba1643e088d58d823cfd5261.s1.eu.hivemq.cloud";
+    static final String HOST = PropertiesConfig.get("mqtt.host");
 
-    final String brokerUsername = "Dan-ADMIN";
-    final String brokerPassword = "Danilo123";
+    final String brokerUsername = PropertiesConfig.get("mqtt.username");
+    final String brokerPassword = PropertiesConfig.get("mqtt.password");
     private Mqtt5Client mqttClient;
     public MQTTClientHandlerImpl(User userInSession, RoomService roomService) {
         this.clientID = userInSession.getId();

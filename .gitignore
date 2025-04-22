@@ -4,3 +4,4 @@
 target
 users-persistence.txt
 rooms-persistence.txt
+src/main/resources/application.properties
