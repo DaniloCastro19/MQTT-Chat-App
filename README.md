@@ -20,7 +20,7 @@ git clone [URL | SSH]
 
 Copy and paste the `application.properties.example` template on your own new `application.properties` file at **src/main/resources**.
 
-This application is using a [HiveMQ cloud client](https://auth.hivemq.cloud/u/login/identifier?state=hKFo2SBwMHlDU0ZsN2VCWE9ubmZzQWUyajdaSUtUY0RHdVd2VqFur3VuaXZlcnNhbC1sb2dpbqN0aWTZIGtmckpBQmtHaDZ1ZVFkSnJyVmZoLV9qS2h6Q3Jsamh6o2NpZNkgSWFqbzRlMzJqeHdVczhBZEZ4Z3hRbjJWUDNZd0laVEs) Once you had your instance, you can connect the application with the broker easily. 
+This application is using a [HiveMQ cloud client](https://auth.hivemq.cloud/u/login/identifier?state=hKFo2SBwMHlDU0ZsN2VCWE9ubmZzQWUyajdaSUtUY0RHdVd2VqFur3VuaXZlcnNhbC1sb2dpbqN0aWTZIGtmckpBQmtHaDZ1ZVFkSnJyVmZoLV9qS2h6Q3Jsamh6o2NpZNkgSWFqbzRlMzJqeHdVczhBZEZ4Z3hRbjJWUDNZd0laVEs). Once you have your instance, you can connect the application with the broker easily. 
 
 
 ### Run the app
